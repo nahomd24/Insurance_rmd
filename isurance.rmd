@@ -1,0 +1,102 @@
+---
+title: "Medical Analysis"
+author: "Nahom Diress"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r echo = FALSE, message = FALSE, warning = FALSE}
+library(tidyverse)
+insurance <- read.csv("insurance.csv")
+```
+
+## How the charges are distrubited
+Most charges are less than $ 20,000, but there are still significant number of charges that range from 20k to 50k.
+
+```{r,echo=FALSE, message=FALSE, warning = FALSE}
+library(ggplot2)
+ggplot(insurance, aes(x = charges)) +
+  geom_density(fill = "white", color = "black") +
+  labs(title = "Distribution of Charges", x = "Charges") 
+```
+
+## Charges by age
+Generally speaking, as age increases so do medical charges. Here are the data points
+
+```{r,echo=FALSE, message=FALSE, warning = FALSE}
+charges_by_age <- insurance %>%
+  group_by(age) %>%
+  summarize(mean_charges = mean(charges))
+ggplot(data = charges_by_age)+
+  geom_line(aes(x = age , y = mean_charges))
+
+```
+
+## Average charges by BMI 
+Generally speaking, as BMI increases so do medical charges
+
+```{r,echo=FALSE, message=FALSE, warning = FALSE}
+insurance <- read.csv("insurance.csv")
+library(ggplot2)
+library(dplyr)
+
+# Assuming you have loaded your insurance data into a variable named 'insurance'
+
+insurance <- insurance %>%
+  mutate(bmi = as.integer(bmi)) %>%
+  mutate(bmi_category = cut(bmi,
+                            breaks = c(-Inf, 18.5, 25, 30, Inf),
+                            labels = c("low", "middle", "high", "very high")))
+
+bmi_charges <- insurance %>%
+  group_by(bmi_category) %>%
+  summarize(mean_charges = mean(charges))
+
+ggplot(data = bmi_charges, aes(x = bmi_category, y = mean_charges)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Mean Charges by BMI Category",
+       x = "BMI Category",
+       y = "Mean Charges") 
+```
+## Average charges by smoker status
+The average charges for smokers are much higher than the average charges for non-smokers
+```{r, echo= FALSE, message= FALSE, warning= FALSE}
+average_charges_by_smoker <- insurance %>%
+  group_by(smoker) %>%
+  summarize(avg_charges = mean(charges))
+
+ggplot(data = average_charges_by_smoker, aes(x = smoker, y = avg_charges)) +
+  geom_bar(stat = "identity", color = "black") +
+  labs(title = "Average Charges by Smoker Status",
+       x = "Smoker Status",
+       y = "Average Charges")
+    ```
+    
+## Average charges by region 
+The average charges were fairly similar across all regions. The average for the southeast was slightly higher.
+```{r, echo= FALSE, message= FALSE, warning= FALSE}
+
+average_charges_by_region <- insurance %>%
+  group_by(region) %>%
+  summarize(avg_charges = mean(charges))
+
+ggplot(data = average_charges_by_region, aes(x = region, y = avg_charges, fill = region)) +
+  geom_bar(stat = "identity", color = "black") +
+  labs(title = "Average Charges by Region",
+       x = "Region",
+       y = "Average Charges")
+
+```
+
+# Summary
+
+Here are four insights from this analysis 
+
+- Charges increase with age
+ 
+
+- Average charges are higher for people with BMI in the "very high" range
+  
+
+- Average charges are significantly higher for people who smoke
+  
